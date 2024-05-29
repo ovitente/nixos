@@ -30,15 +30,11 @@
 
 
 # X ----------------------------------------
-services.xserver = {
-  enable = true;
+  services.xserver.enable = true;
 
-  displayManager = {
-      sddm.enable = true;
-      defaultSession = "none+awesome";
-  };
-
-  windowManager.awesome = {
+  services.xserver.displayManager.sddm.enable = true;
+  services.xserver.displayManager.defaultSession = "none+awesome";
+  services.xserver.windowManager.awesome = {
     enable = true;
     luaModules = with pkgs.luaPackages; [
       luarocks # is the package manager for Lua modules
@@ -46,7 +42,6 @@ services.xserver = {
     ];
 
   };
-};
 
 # Sound ----------------------------------------
 
@@ -132,6 +127,7 @@ services.xserver = {
     rsync
     simplescreenrecorder
     slack
+    sddm
     socat
     tdesktop
     teamspeak_client
