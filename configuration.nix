@@ -1,7 +1,3 @@
-# Edit this configuration file to define what should be installed on
-# your system. Help is available in the configuration.nix(5) man page, on
-# https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
-
 { config, lib, pkgs, ... }:
 
 {
@@ -10,10 +6,10 @@
       ./hardware-configuration.nix
     ];
 
-  # Use the GRUB 2 boot loader.
+  # Bootloader.
   boot.loader.grub.enable = true;
-  boot.loader.grub.device = "/dev/sda"; #or "nodev" for efi only
-  
+  boot.loader.grub.device = "/dev/sda";
+  boot.loader.grub.useOSProber = true;
 
 # Networking ----------------------------------------
   networking.networkmanager.enable = true;
@@ -27,26 +23,37 @@
     127.0.0.1 fishki.net
   '';
 
-
-
 # X ----------------------------------------
+  virtualisation.vmware.guest.enable = true;
+
   services.xserver.enable = true;
 
-  services.xserver.displayManager.sddm.enable = true;
+  services.xserver.displayManager.lightdm.enable = true;
   services.xserver.displayManager.defaultSession = "none+awesome";
+  services.xserver.desktopManager.xfce.enable = true;
   services.xserver.windowManager.awesome = {
     enable = true;
     luaModules = with pkgs.luaPackages; [
       luarocks # is the package manager for Lua modules
       luadbi-mysql # Database abstraction layer
     ];
-
   };
+
+  # Enable automatic login for the user.
+  services.xserver.displayManager.autoLogin.enable = true;
+  services.xserver.displayManager.autoLogin.user = "det";
+
+  # Configure keymap in X11
+  services.xserver = {
+    layout = "us";
+    xkbVariant = "";
+  };
+
+  # Touchpad support (enabled default in most desktopManager).
+  services.xserver.libinput.enable = true;
 
 # Sound ----------------------------------------
 
-  # Enable sound with pipewire.
-  services.pipewire.wireplumber.enable = true;
   sound.enable = true;
   hardware.pulseaudio.enable = false;
   security.rtkit.enable = true;
@@ -55,9 +62,14 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
+    # If you want to use JACK applications, uncomment this
+    #jack.enable = true;
+
+    # use the example session manager (no others are packaged yet so this is enabled by default,
+    # no need to redefine it in your config for now)
+    #media-session.enable = true;
   };
 
-  virtualisation.vmware.guest.enable = true;
 
 # Users ----------------------------------------
 
@@ -68,6 +80,7 @@
     shell = pkgs.zsh;
     extraGroups = [ "networkmanager" "wheel" "docker" "audio" ];
   };
+
 
 # Packages ----------------------------------------
 
@@ -83,6 +96,7 @@
     anydesk
     appimage-run
     arandr
+    xfce.xfwm4
     capitaine-cursors
     catppuccin-cursors.mochaGreen
     curl
@@ -145,12 +159,18 @@
     yt-dlp
     zoom-us
     zsh
+
   ];
 
 # System ----------------------------------------
 
-  # Set your time zone.
-  time.timeZone = "Europe/Kyiv";
+  services.openssh.enable = true;
+  programs.gnupg.agent = {
+    enable = true;
+    enableSSHSupport = true;
+  };
+  
+  time.timeZone = "Europe/Bucharest";
 
   fonts.packages = with pkgs; [
     (nerdfonts.override { fonts = [
@@ -178,33 +198,23 @@
     LC_TIME = "en_US.UTF-8";
   };
 
-# Touchpad support (enabled default in most desktopManager).
-services.xserver.libinput.enable = true;
-
-
   environment.etc."current-system-packages".text =
-    let
-      packages = builtins.map
-        (p: "${p.name}")
-        config.environment.systemPackages;
-      sortedUnique = builtins.sort
-        builtins.lessThan
-        (lib.unique packages);
-      formatted = builtins.concatStringsSep
-        "\n"
-        sortedUnique;
-    in
-    formatted;
+  let
+    packages = builtins.map
+      (p: "${p.name}")
+      config.environment.systemPackages;
+    sortedUnique = builtins.sort
+      builtins.lessThan
+      (lib.unique packages);
+    formatted = builtins.concatStringsSep
+      "\n"
+      sortedUnique;
+  in
+  formatted;
 
   hardware.bluetooth.enable = true;
 
   programs.mtr.enable = true;
 
-  programs.gnupg.agent = {
-    enable = true;
-    enableSSHSupport = true;
-  };
-
-  services.openssh.enable = true;
-  system.stateVersion = "23.11"; # Did you read the comment?
+  system.stateVersion = "23.11"; 
 }
