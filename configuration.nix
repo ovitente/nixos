@@ -7,10 +7,10 @@
 #     ./ssh-agent.nix
     ];
 
-  nixpkgs.overlays = [
+    nixpkgs.overlays = [
     (self: super: {
-      myAwesome = super.awesome.overrideAttrs (old: rec {
-        pname = "myAwesome";
+      awesome = super.awesome.overrideAttrs (old: rec {
+        pname = "awesome";
         version = "git-20220614-3a54221";
         src = super.fetchFromGitHub {
           owner = "awesomeWM";
