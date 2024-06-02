@@ -7,26 +7,23 @@
 #     ./ssh-agent.nix
     ];
 
-# Bootloader ----------------------------------------
+  nixpkgs.overlays = [
+    (self: super: {
+      myAwesome = super.awesome.overrideAttrs (old: rec {
+        pname = "myAwesome";
+        version = "git-20220614-3a54221";
+        src = super.fetchFromGitHub {
+          owner = "awesomeWM";
+          repo = "awesome";
+          rev = "3a542219f3bf129546ae79eb20e384ea28fa9798";
+          sha256 = "4z3w6iuv+Gw2xRvhv2AX4suO6dl82woJn0p1nkEx3uM=";
+        };
+        patches = [];
+      });
+    })
+  ];
 
-  boot.loader.grub.enable = true;
-  boot.loader.grub.device = "/dev/sda";
-  boot.loader.grub.useOSProber = true;
-
-# Networking ----------------------------------------
-
-  networking.networkmanager.enable = true;
-  networking.hostName = "nixos"; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-  networking.extraHosts =
-  ''
-    127.0.0.1 lostfilm.today
-    127.0.0.1 lostfilm.tv
-    127.0.0.1 pikabu.ru
-    127.0.0.1 fishki.net
-  '';
-
-# X ----------------------------------------
+  # X ----------------------------------------
 
   virtualisation.vmware.guest.enable = true;
 
@@ -56,7 +53,26 @@
   # Touchpad support (enabled default in most desktopManager).
   services.xserver.libinput.enable = true;
 
-# Sound ----------------------------------------
+  # Bootloader ----------------------------------------
+
+  boot.loader.grub.enable = true;
+  boot.loader.grub.device = "/dev/sda";
+  boot.loader.grub.useOSProber = true;
+
+  # Networking ----------------------------------------
+
+  networking.networkmanager.enable = true;
+  networking.hostName = "nixos"; # Define your hostname.
+  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+  networking.extraHosts =
+  ''
+    127.0.0.1 lostfilm.today
+    127.0.0.1 lostfilm.tv
+    127.0.0.1 pikabu.ru
+    127.0.0.1 fishki.net
+  '';
+
+  # Sound ----------------------------------------
 
   sound.enable = true;
   hardware.pulseaudio.enable = false;
@@ -68,7 +84,7 @@
     pulse.enable = true;
   };
 
-# Users ----------------------------------------
+  # Users ----------------------------------------
 
   users.defaultUserShell=pkgs.zsh; 
 
@@ -94,6 +110,7 @@
            enable = true;
            theme = "robbyrussell";
            plugins = [
+
              "git"
              "history"
              "deno"
@@ -101,13 +118,12 @@
 	     "vi-mode"
 	     "kubectl"
 	     "helm" 
-	];
+	   ];
         };
      };
   };
 
-
-# Packages ----------------------------------------
+  # Packages ----------------------------------------
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
@@ -185,10 +201,9 @@
     yt-dlp
     zoom-us
     zsh
-
   ];
 
-# System ----------------------------------------
+  # System ----------------------------------------
 
   services.openssh.enable = true;
   programs.gnupg.agent = {
@@ -231,6 +246,7 @@
       config.environment.systemPackages;
     sortedUnique = builtins.sort
       builtins.lessThan
+
       (lib.unique packages);
     formatted = builtins.concatStringsSep
       "\n"
@@ -243,4 +259,6 @@
   programs.mtr.enable = true;
 
   system.stateVersion = "23.11";
+
 }
+
