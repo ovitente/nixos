@@ -72,6 +72,10 @@
 
   users.defaultUserShell=pkgs.zsh; 
 
+  users.users.root = {
+    shell = pkgs.zsh;
+  };
+
   users.users.det = {
     isNormalUser = true;
     description = "det";
@@ -91,11 +95,13 @@
            theme = "robbyrussell";
            plugins = [
              "git"
-             "npm"
              "history"
-             "node"
              "deno"
-           ];
+	     "gcloud"
+	     "vi-mode"
+	     "kubectl"
+	     "helm" 
+	];
         };
      };
   };
